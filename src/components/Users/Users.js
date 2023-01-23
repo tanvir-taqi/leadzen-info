@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
-import Pagination from './Pagination';
+import React, { useContext, useEffect, useState } from 'react';
+import { Modecontext } from '../../Context/ModeContext';
 import SingleUser from './SingleUser';
 
 const Users = () => {
+    const {isDark} = useContext(Modecontext)
     const [users, setUsers] = useState([])
-    const a = users.slice(0,3)
+    const a = users?.slice(0,3)
     const [pageData, setPageData] = useState(a)
     const [size, setSize] = useState(0)
-    const [firstIndex, setFirstIndex] = useState(0)
-    const [lastIndex, setlastIndex] = useState(3)
     let sizeArr = []
 
     for (let i = 0; i < size; i++) {
         sizeArr.push(i)
-
     }
-
 
     useEffect(() => {
         fetch(`https://jsonplaceholder.typicode.com/users`)
@@ -24,37 +20,34 @@ const Users = () => {
             .then(data => {
 
                 setUsers(data)
-                setPageData(data?.slice(firstIndex, lastIndex ))
+                setPageData(data?.slice(0, 3 ))
                 setSize(Math.ceil(data?.length / 3))
             })
-    }, [size,firstIndex,lastIndex])
+    }, [])
 
     const loadData = (startIndex, endIndex)=>{
-        // console.log('====================================');
-        // console.log(startIndex, endIndex);
-        // console.log('====================================');
-        // setFirstIndex(startIndex)
-        // setlastIndex(endIndex)
         const limitedUsers = users?.slice(startIndex, endIndex )
         setPageData(limitedUsers)
     }
 
     return (
-        <div>
+        <div className={`${isDark ? 'text-white bg-gray-700 ' : 'text-black bg-gray-100 '}`}>
             {
                 pageData.map(user => <SingleUser
                     key={user?.id}
                     user={user}
                 ></SingleUser>)
             }
-            <div>
+            <div className=' w-full flex justify-center items-center my-8'>
+                <div className='flex mx-4 md:w-1/4'>                
                 {
                 sizeArr.map((page,i) => <button 
-                className='border border-[#ff4d46] py-1 px-3 rounded mx-4'
+                className='border border-[#ff4d46]  hover:bg-[#ff4c46d2] hover:text-white py-1 px-3 rounded mx-4'
                     key={i}
-                    onClick = {()=>loadData(page * firstIndex ,  3 * lastIndex)}
+                    onClick = {()=>loadData(page * 3 ,  3 + 3 * page)}
                     >{page + 1}</button> )
                 }
+                </div>
             </div>
         </div>
     );
